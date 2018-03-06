@@ -1,3 +1,5 @@
+***Forked in order to allow it to work on Windows if using git bash, cygwin or equivalent***
+
 # git-summary
 **If you ever experienced one of the following situations, git-summary is for you.**
 
@@ -51,7 +53,8 @@ Currently, `git-summary` does not list multiple branches per repo. However, for 
 ## Credits
 A big thanks :metal: to the amazing people that wrote the original versions of `git-summary`:
 
-* **Forked from** [lordadamson](https://github.com/lordadamson/git-summary)
+* **Forked from** [MirkoLedda](https://github.com/MirkoLedda/git-summary)
+* **In turn forked from** [lordadamson](https://github.com/lordadamson/git-summary)
 * [mzabriskie](https://github.com/mzabriskie) (Posted the original idea [here](https://gist.github.com/mzabriskie/6631607))
 * [CycleMost](https://github.com/CycleMost)
 * [lmj0011](https://github.com/lmj0011)

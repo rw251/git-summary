@@ -89,7 +89,7 @@ git_summary() {
     local branches=$(repo_branches $target)
     local max_repo_len=$(max_len "$repos")
     local max_branch_len=$(max_len "$branches")
-    local template=$(printf "%%b%%-%ds  %%-%ds  %%-5s" $max_repo_len $max_branch_len)
+    local template=$(printf "%%b%%-%ds %%-%ds %%5s" $max_repo_len $max_branch_len)
     print_header "$template" $max_repo_len $max_branch_len
 
     local f
@@ -101,10 +101,17 @@ git_summary() {
 # Autodetect the OS
 detect_OS() {
   if [ "$(uname)" == "Darwin" ]; then  # macOS
+    echo 'Looks like a macOS'
     readlink_cmd="greadlink"
     dirname_cmd="gdirname"
     gawk_cmd="awk"
   elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then  # Linux
+    echo 'Looks like linux'
+    readlink_cmd="readlink"
+    dirname_cmd="dirname"
+    gawk_cmd="gawk"  
+  elif [ "$(expr substr $OS 1 3)" == "Win" ]; then  # Windows
+    echo 'Looks like windows - hope you have git bash or cygwin otherwise this wont work!'
     readlink_cmd="readlink"
     dirname_cmd="dirname"
     gawk_cmd="gawk"
@@ -118,15 +125,14 @@ print_header () {
     local max_branch_len=$3
     print_divider () {
         printf '=%.0s' $(seq 1 $max_repo_len)
-        printf '  '
+        printf ' '
         printf '=%.0s' $(seq 1 $max_branch_len)
-        printf '  '
+        printf ' '
         printf '=%.0s' $(seq 1 5)
         printf '\n'
     };
 
-    echo
-    printf "$template\n" $NC Repository Branch State
+    printf "$template\n" $NC "Repository" "Branch" "State"
     print_divider
 }
 
