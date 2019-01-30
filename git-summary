@@ -86,11 +86,13 @@ git_summary() {
     # whole bunch of repos.  Doing it like this allows us to write the
     # output to stdout incrementally.
 
+    local remotes=$(repo_remotes $target)
     local branches=$(repo_branches $target)
     local max_repo_len=$(max_len "$repos")
     local max_branch_len=$(max_len "$branches")
-    local template=$(printf "%%b%%-%ds %%-%ds %%5s" $max_repo_len $max_branch_len)
-    print_header "$template" $max_repo_len $max_branch_len
+    local max_remote_len=$(max_len "$remotes")
+    local template=$(printf "%%b%%-%ds %%-%ds %%-%ds %%5s" $max_repo_len $max_branch_len $max_remote_len)
+    print_header "$template" $max_repo_len $max_branch_len $max_remote_len
 
     local f
     for f in $repos ; do
@@ -123,16 +125,19 @@ print_header () {
     local template="$1"
     local max_repo_len=$2
     local max_branch_len=$3
+    local max_remote_len=$4
     print_divider () {
         printf '=%.0s' $(seq 1 $max_repo_len)
         printf ' '
         printf '=%.0s' $(seq 1 $max_branch_len)
         printf ' '
+        printf '=%.0s' $(seq 1 $max_remote_len)
+        printf ' '
         printf '=%.0s' $(seq 1 5)
         printf '\n'
     };
 
-    printf "$template\n" $NC "Repository" "Branch" "State"
+    printf "$template\n" $NC "Repository" "Branch" "Remote" "State"
     print_divider
 }
 
@@ -145,6 +150,7 @@ summarize_one_git_repo () {
 
     local app_name=$f
     local branch_name=`git -C $f symbolic-ref HEAD | sed -e "s/^refs\/heads\///"`
+    local remote_name=`git -C $f remote | xargs | sed -e "s/ /,/"`
     local numState=0
 
     ### Check remote state
@@ -205,11 +211,11 @@ summarize_one_git_repo () {
 
     ### Print to stdout
     if [ $numState -eq 0 ]; then
-      printf "$template\n" $GREEN $app_name $branch_name "$state$rstate" >&1
+      printf "$template\n" $GREEN $app_name $branch_name $remote_name "$state$rstate" >&1
     elif [ $numState -eq 1 ]; then
-      printf "$template\n" $ORANGE $app_name $branch_name "$state$rstate" >&1
+      printf "$template\n" $ORANGE $app_name $branch_name $remote_name "$state$rstate" >&1
     elif [ $numState -eq 2 ]; then
-      printf "$template\n" $RED $app_name $branch_name "$state$rstate" >&1
+      printf "$template\n" $RED $app_name $branch_name $remote_name "$state$rstate" >&1
     fi
 }
 
@@ -255,6 +261,21 @@ repo_branches () {
     done
 }
 
+# Given the path to a git repo, compute its current branch name.
+repo_remote () {
+    git -C $1  remote | xargs | sed -e "s/ /,/"
+    # git -C $1 symbolic-ref HEAD | sed -e "s/^refs\/heads\///"
+}
+
+# Given the path to a folder containing git some repos, compute the
+# names of the current remotes in the repos.
+repo_remotes () {
+    local path=$1
+    local repo
+    for repo in $(list_repos $path) ; do
+        echo $(repo_remote $repo)
+    done
+}
 
 max_len () {
     echo "$1" | $gawk_cmd '{ print length }' | sort -rn | head -1

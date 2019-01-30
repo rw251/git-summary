@@ -1,5 +1,7 @@
 ***Forked in order to allow it to work on Windows if using git bash, cygwin or equivalent***
 
+***Also added a column showing the remotes***
+
 # git-summary
 **If you ever experienced one of the following situations, git-summary is for you.**
 
